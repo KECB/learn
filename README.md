@@ -1,0 +1,2 @@
+# learn
+Basically learn python

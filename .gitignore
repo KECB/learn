@@ -104,7 +104,10 @@ ENV/
 # IDE
 .idea/
 
+
+# data
 *.txt
+*.csv
 
 
 # ipynb

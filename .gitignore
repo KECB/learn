@@ -109,6 +109,7 @@ ENV/
 *.txt
 *.csv
 *.html
+.pypirc
 
 
 # ipynb

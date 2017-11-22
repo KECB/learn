@@ -109,6 +109,12 @@ ENV/
 *.txt
 *.csv
 *.html
+*.jpg
+*.png
+*.avi
+*.mat
+*.data
+*.xml
 .pypirc
 
 

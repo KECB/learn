@@ -1,3 +1,4 @@
+import numpy as np
 
 
 class Node(object):
@@ -68,6 +69,53 @@ class Mul(Node):
         self.value = mul_value
 
 
+class Linear(Node):
+    def __init__(self, inputs, weights, bias):
+        Node.__init__(self, [inputs, weights, bias])
+
+    def forward(self):
+        inputs = self.inbound_nodes[0].value
+        weights = self.inbound_nodes[1].value
+        bias = self.inbound_nodes[2].value
+        self.value = np.dot(inputs, weights) + bias
+
+
+class Sigmoid(Node):
+    def __init__(self, node):
+        Node.__init__(self, [node])
+
+    def _sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def forward(self):
+        self.value = self._sigmoid(self.inbound_nodes[0].value)
+
+
+class MSE(Node):
+    def __init__(self, y, a):
+        Node.__init__(self, [y, a])
+
+    def forward(self):
+        """
+        Calculates the mean squared error.
+        """
+        # NOTE: We reshape these to avoid possible matrix/vector broadcast
+        # errors.
+        #
+        # For example, if we subtract an array of shape (3,) from an array of shape
+        # (3,1) we get an array of shape(3,3) as the result when we want
+        # an array of shape (3,1) instead.
+        #
+        # Making both arrays (3,1) insures the result is (3,1) and does
+        # an elementwise subtraction as expected.
+        y = self.inbound_nodes[0].value.reshape(-1, 1)
+        a = self.inbound_nodes[1].value.reshape(-1, 1)
+        m = self.inbound_nodes[0].value.shape[0]
+
+        diff = y - a
+        self.value = np.mean(diff**2)
+
+
 def topological_sort(feed_dict):
     """
     Sort generic nodes in topological order using Kahn's Algorithm.
@@ -125,3 +173,15 @@ def forward_pass(output_node, sorted_nodes):
 
     return output_node.value
 
+
+def forward_pass(graph):
+    """
+    Performs a forward pass through a list of sorted Nodes.
+
+    Arguments:
+
+        `graph`: The result of calling `topological_sort`.
+    """
+    # Forward pass
+    for n in graph:
+        n.forward()
